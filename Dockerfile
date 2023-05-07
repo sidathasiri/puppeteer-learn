@@ -1,20 +1,28 @@
-FROM node:18-alpine
+FROM node:slim AS app
 
-WORKDIR /usr/src/app
+# We don't need the standalone Chromium
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
-COPY package*.json ./
+# Install Google Chrome Stable and fonts
+# Note: this installs the necessary libs to make the browser work with Puppeteer.
+RUN apt-get update && apt-get install curl gnupg -y \
+  && curl --location --silent https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add - \
+  && sh -c 'echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list' \
+  && apt-get update \
+  && apt-get install google-chrome-stable -y --no-install-recommends \
+  && rm -rf /var/lib/apt/lists/*
+
+
+
+
+WORKDIR /data
+
+RUN git clone https://github.com/sidathasiri/puppeteer-learn.git /data/app
+
+WORKDIR /data/app
 
 RUN npm install
 
-COPY . .
+CMD ["npm", "start"]
 
-RUN npm -g install eslint
-RUN npm -g install eslint-config-airbnb
-RUN npm install  -g eslint-plugin-import
-RUN npm install  -g eslint-plugin-jsx-a11y
-RUN npm install  -g eslint-plugin-react 
 
-RUN npm install -g prettier 
-
-RUN npm install -g --save-dev jest 
-RUN npm install -g --save-dev @testing-library/react 
