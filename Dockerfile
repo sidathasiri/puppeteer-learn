@@ -1,4 +1,4 @@
-FROM node:18
+FROM node:14
 
 # We don't need the standalone Chromium
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
@@ -11,13 +11,5 @@ RUN apt-get update && apt-get install gnupg wget -y && \
     apt-get update && \
     apt-get install google-chrome-stable -y --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
-
-RUN apt-get install git -y
-
-WORKDIR /data
-
-RUN git clone https://github.com/sidathasiri/puppeteer-learn.git /data
-
-RUN npm install
-
-CMD ["npm", "start"]
+    
+RUN npm install puppeteer@19.8.3 
